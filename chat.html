@@ -1,0 +1,36 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Chatbot</title>
+</head>
+<body>
+    
+</body>
+</html><html>
+    <head>
+        <script>
+            know = {
+                "hello" : "hi",
+                "how are you?" : "good",
+                "my name is ...." : "nice to meet you",
+                "ok" : ":)"
+            };
+            function talk() {
+                var user = document.getElementById("userBox").value;
+                document.getElementById("userBox").value = "";
+                document.getElementById("chatLog").innerHTML += user+"<br>";
+                if (user in know) {
+                    document.getElementById("chatLog").innerHTML += know[user]+"<br>";
+                } else {
+                    document.getElementById("chatLog").innerHTML += "I don't understand...<br>";
+                }
+            } 
+        </script>
+    </head>
+    <body>
+        <p id="chatLog">SIMPLE CHATBOT<br></p>
+        <input id="userBox" placeholder="Hi, I am Vasily" type="text" onkeydown="if (event.keyCode == 13) {talk()}">
+    </body>
+</html>
