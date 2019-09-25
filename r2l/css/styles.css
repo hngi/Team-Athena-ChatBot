@@ -20,21 +20,23 @@ body {
 
 .welcome {
   width: 100%;
-  max-width: 700px;
+  max-width: 500px;
   padding: 15px;
   margin: auto;
 }
 
 .button {
     padding: 14px 40px;
-    background-color: #fcfcfc;
+    background-color: rgb(255, 215, 0);
     color: black;
-    border: 4px solid #8000ff;
+    border: 4px solid #003;
     border-radius: 10px;
-    margin-left: 30px;
-    font-weight: 700;
 }
 
+.img-responsive {
+    width: 100%;
+    height: auto;
+  }
 
 .h1, h1 {
     font-size: 3rem !important;
@@ -44,4 +46,16 @@ body {
     color: darkslategray !important;
     font-size: 1.35rem !important; 
     font-weight: 500!important;
+}
+
+
+@media only screen and (max-width: 600px) {
+    html {
+        font-size: 60%;
+    }
+
+    .bg {
+        padding-left: 0;
+        height: 100%;
+    }
 }

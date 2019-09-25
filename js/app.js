@@ -1,44 +1,49 @@
 $(document).ready(function () {
     $(".btn-question").on('click', function (e) {
         e.preventDefault();
-        const question = $("#question").val().trim().toLowerCase();
+        const answer = $("#answer").val().trim().toLowerCase();
+        const question = $('.question').last().text().trim();
+        console.log(question);
+        // get the last question
+        const username = question === dataset[0].A ? answer + ', ': '';
 
         if (question.length) {
-            $("#question").val('');
-
+            $("#answer").val('');
             /*paste question on the view */
-            var question_chatbot = '<div class="chat-bubble outgoing-chat"><div class="sender-details">';
-            question_chatbot += '<img class="sender-avatar img-xs rounded-circle" src="images/avatar1.png" alt="profile image"></div>';
-            question_chatbot += '<div class="chat-message" style="margin-top: -10px"> <p>' + question + '</p></div> </div>';
-            $('#chat').append(question_chatbot);
-            console.log(determineAnswer(question));
+            var answer_chatbot = '<div class="chat-bubble outgoing-chat"><div class="sender-details">';
+            answer_chatbot += '<img class="sender-avatar img-xs rounded-circle" src="images/avatar1.png" alt="profile image"></div>';
+            answer_chatbot += '<div class="chat-message" style="margin-top: -10px"> <p>' + answer + '</p></div> </div>';
+            $('#chat').append(answer_chatbot);
             
             /* send reply */
-            var answer = '<div class="chat-bubble incoming-chat"> <div class="sender-details">';
-            answer += '<img class="sender-avatar img-xs rounded-circle" src="images/avatar.png" alt="profile image"></div>';
-            answer += '<div class="chat-message" style="display: inline-block; margin-bottom: 5px; margin-top: -100px">';
-            answer += ' <p> ' + determineAnswer(question) +'</p> </div>';
+            var new_question = '<div class="chat-bubble incoming-chat"> <div class="sender-details">';
+            new_question += '<img class="sender-avatar img-xs rounded-circle" src="images/avatar.png" alt="profile image"></div>';
+            new_question += '<div class="chat-message question" style="display: inline-block; margin-bottom: 5px; margin-top: -100px">';
+            new_question += ' <p> ' + determineQuestion(question, username) +'</p> </div>';
 
             /* empty input */
             setTimeout(function() {
-                $('#chat').append(answer);
+                $('#chat').append(new_question);
             }, 800);
         }
     });
 });
 
-function determineAnswer(question) {
-    
-    var answer = dataset.find(data => {
-        return question == data.A
+function determineQuestion(old_question, username) {
+
+    var new_question = dataset.find(data => {
+        return old_question == data.A;
     });
-    return answer.B ? answer.B : 'Sorry i don\'t have an answer to that';
+    if (new_question){
+        return new_question.B  && username.length ? username + new_question.B : new_question.B;
+    }
+    return 'Ok';
 }
 
 var dataset =  [
     {
-      "A": 'Hi',
-      "B": 'Hi, How may i help you'
+      "A": 'welcome buddy, what is your name?',
+      "B": 'awww nice you have a nice name, where are you from ?'
     },
     {
       "A": "are we the same age?",
