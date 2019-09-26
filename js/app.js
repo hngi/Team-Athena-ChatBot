@@ -6,7 +6,7 @@ $(document).ready(function () {
         e.preventDefault();
         const answer = $("#answer").val().trim().toLowerCase();
         const question = $('.question').last().text().trim();
-        const username = question === dataset[0].A ? answer + ', ' : '';
+        const username = question === dataset[0].A ? formatUsername(answer) + ', ' : '';
 
         if (answer.length > 1) {
             $("#answer").val('');
@@ -30,6 +30,7 @@ $(document).ready(function () {
     });
 });
 
+
 function determineQuestion(old_question, answer, username) {
     let new_question = getData(old_question, answer);
     if (new_question) {
@@ -39,10 +40,12 @@ function determineQuestion(old_question, answer, username) {
 }
 
 function getCountry() {
+    var defaultCountry = "Ghana";
+    
     if (typeof origin !== 'undefined') {
         return origin.country
     }
-    return "Ghana";
+    return defaultCountry;
 }
 
 function getData(old_question, answer) {
@@ -50,9 +53,16 @@ function getData(old_question, answer) {
         if (old_question.includes(dataset[i].A) && old_question.length == dataset[i].A.length) {
             return dataset[i];
         } else if (old_question.includes(dataset[i].A) && old_question.length != dataset[i].A.length) {
+            var positiveResponse = ['yeah', 'yes', 'ya', 'yup', 'true'];
             return positiveResponse.find(res => answer == res) ? dataset[i] : isAnswerTheSame(answer);
         }
     }
+}
+
+function formatUsername(answer) {
+    var initials = ['i am', 'i\'m', 'a bi'];
+    var check = initials.find(ini => answer.includes(ini));
+    return check ? answer.replace(check, '') : answer;
 }
 
 function isAnswerTheSame(answer) {
@@ -126,12 +136,10 @@ function setOrigin(org) {
     }
 }
 
-
-var positiveResponse = ['yeah', 'yes', 'ya', 'yup', 'true'];
 var dataset = [
     {
         "A": 'welcome buddy what is your name?',
-        "B": 'awww nice you have a nice name, are you from '
+        "B": 'awww nice you have a nice name, please confirm are you from '
     },
     {
         "A": "awww nice you have a nice name, are you from",
