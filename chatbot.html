@@ -14,15 +14,16 @@
     <link rel="shortcut icon" href="../../../assets/images/favicon.png" />
 </head>
 
-<body class="sidebar-icon-only sidebar-fixed">
+<body class="sidebar-icon-only sidebar-fixed" >
+
     <div class="container-scroller">
         <!-- partial:../../partials/_navbar.html -->
         <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
             <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
-                <a class="navbar-brand brand-logo" href="#"><img src="images/logo.png" alt="log" /></a>
+                <a class="navbar-brand brand-logo" href="#"><img src="images/logo1.png" alt="log" /></a>
 
                 <a class="navbar-brand  brand-logo-mini" href="#">
-                    <img src="images/logo.png" alt="logo" width="50" height="1000" />
+                    <img src="images/logo3.png" class="logo" alt="logo" />
                 </a>
             </div>
             <div class="navbar-menu-wrapper d-flex align-items-stretch">
@@ -56,9 +57,6 @@
                 <div class="content-wrapper">
                     <div class="row">
                         <div class="col-md-12">
-                            <button type="button"
-                                class="btn btn-secondary py-3 mb-4 text-center d-md-none aside-toggler"><i
-                                    class="mdi mdi-menu mr-0 icon-md"></i></button>
                             <div class="card chat-app-wrapper">
                                 <div class="row mx-0">
                                     <div class="col-lg-12 col-md-8 px-0 d-flex flex-column">
@@ -70,13 +68,13 @@
                                                 </div>
 
                                                 <div class="chat-message"
-                                                    style="display: inline-block; margin-bottom: 5px; margin-top: -100px">
+                                                    style="display: inline-block; margin-bottom: 5px">
                                                     <p> Hello, I'm Athena.</p>
                                                 </div>
                                                 <br>
                                                 <div class="chat-message question"
-                                                    style="display: inline-block; margin-bottom: 30px">
-                                                    <p> welcome buddy, what is your name? </p>
+                                                    style="display: inline-block; margin-bottom: 10px">
+                                                    <p> welcome buddy what is your name? </p>
                                                 </div>
                                             </div>
 
@@ -124,12 +122,15 @@
         </div>
         <!-- page-body-wrapper ends -->
     </div>
+    
     <script src="js/base.js"></script>
     <script src="js/off-canvas.js"></script>
     <script src="js/hoverable-collapse.js"></script>
     <script src="js/misc.js"></script>
     <script src="js/settings.js"></script>
     <script src="js/app.js"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDiv9UJyj60BuCNqGwmqWwpRlcGJmzeZAM&callback=initMap"
+  type="text/javascript"></script>
 </body>
 
 </html>

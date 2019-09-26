@@ -18622,7 +18622,7 @@
         padding: 15px 0; } }
   
   .chat-app-wrapper {
-    position: relative;
+    position: sticky;
     overflow: hidden; }
     .chat-app-wrapper .chat-list-wrapper {
       overflow-y: auto;
