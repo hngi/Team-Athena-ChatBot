@@ -1,4 +1,9 @@
 let origin;
+let football;
+let footballUrls = {
+        team: 'http://api.football-data.org/v2/teams',
+        competition: 'http://api.football-data.org/v2/competitions/2077',
+    };
 
 $(document).ready(function () {
     ipLookUp();
@@ -49,11 +54,12 @@ function getCountry() {
 }
 
 function getData(old_question, answer) {
+    getFootballInfo(old_question);
     for (let i = 0; i < dataset.length; i++) {
         if (old_question.includes(dataset[i].A) && old_question.length == dataset[i].A.length) {
             return dataset[i];
         } else if (old_question.includes(dataset[i].A) && old_question.length != dataset[i].A.length) {
-            var positiveResponse = ['yeah', 'yes', 'ya', 'yup', 'true'];
+            var positiveResponse = ['yeah', 'yes', 'ya', 'yup', 'true', 'yea', 'yh', 'yeh'];
             return positiveResponse.find(res => answer == res) ? dataset[i] : isAnswerTheSame(answer);
         }
     }
@@ -76,8 +82,6 @@ function ipLookUp() {
     $.ajax('http://ip-api.com/json')
         .then(
             function success(response) {
-                console.log('User\'s Location Data is ', response);
-                console.log('User\'s Country', response.country);
                 setOrigin(response);
                 getAddress(response.lat, response.lon)
             },
@@ -129,6 +133,37 @@ if ("geolocation" in navigator) {
     ipLookUp()
 }
 
+function getFootballInfo(old_question) {
+    if(old_question == "charley do you want to know your last match score ?") {
+        fetchFootballData(footballUrls.competition);
+        if(football !== null) {
+            Swal.fire({
+                type: 'error',
+                title: 'Oops',
+                text: 'Something went wrong! unable to get score info',
+              })
+        }
+    }
+}
+
+function fetchFootballData(url) {
+    $.ajax({
+        headers: { 'X-Auth-Token': '0e0e8e7880894045b8f02a8d29e32a91' },
+        url: url,
+        dataType: 'json',
+        type: 'GET',
+      }).done(function(response) {
+        setFootballdata(response);
+        console.log(response);
+      })
+}
+
+function setFootballdata(fb) {
+    if(fb) {
+        football = fb;
+    }
+}
+
 
 function setOrigin(org) {
     if (org) {
@@ -142,12 +177,12 @@ var dataset = [
         "B": 'awww nice you have a nice name, please confirm are you from '
     },
     {
-        "A": "awww nice you have a nice name, are you from",
-        "B": "awww that is a nice place"
+        "A": "awww nice you have a nice name, please confirm are you from",
+        "B": "awww i hope that is a nice place ?"
     },
     {
         "A": "where are you from then ?",
-        "B": "awww i hope it is a nice place ?"
+        "B": "awww i hope that is a nice place ?"
     },
     {
         "A": "checking your location",
@@ -158,12 +193,17 @@ var dataset = [
         "B": "But it is the same as where i suggested ?"
     },
     {
-        "A": 'awww that is a nice place',
-        "B": "okay"
+        "A": 'awww i hope that is a nice place ?',
+        "B": "Okay o, I am here to serve you with football, which team do you support?"
     },
     {
-        "A": "are you a kid?",
-        "B": "Age doesn't really apply to me. "
+        "A": "Okay o, I am here to serve you with football, which team do you support?",
+        "B": "charley do you want to know your last match score ?" 
+    },
+
+    {
+        "A": "charley do you want to know your last match score ?",
+        "B": "okay, i'm coming" 
     },
     {
         "A": "are you a senior?",
