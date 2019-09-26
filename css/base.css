@@ -101,6 +101,11 @@
     background-color: #999;
     width: 11px;
   }
+
+  .logo {
+    width: 100%;
+    height: auto;
+  }
   
   /* MS supports */
   @supports (-ms-overflow-style: none) {
@@ -113,4 +118,46 @@
     .ps {
       overflow: auto !important;
     }
+  }
+
+
+  .loader {
+    border: 5px solid #f3f3f3; /* Light grey */
+    border-top: 5px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .loader-page {
+    background: #143975;
+    width: 100vh;
+    height: 100vh;
+  }
+
+  .loader-page .counter h1 {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 300px;
+    font-weight: bolder;
+    margin-top: -10px;
+  }
+
+  h2 {
+    position: fixed;
+    top: 70%;
+    left: 40%;
+    color: white;
+    font-size: 50px;
+    font-weight: normal;
+    margin-top: -10px;
   }
