@@ -14,7 +14,7 @@ const footballTeams = fetchFootballData(footballUrls.team);
 const positiveResponse = ['yeah', 'yes', 'ya', 'yup', 'true', 'yea', 'yh', 'yeh', 'ok', 'okay', 'sure'];
 const negativeResponse = ['no', 'nah', 'not at all', 'false'];
 const initials = ['i am', 'i\'m', 'a bi'];
-const greetings = ['sup', 'chairman','bro','hey','hello','hi','sup','good morning', 'good afternoon', 'Good evening', 'morning', 'afternoon', 'evening'];
+const greetings = ['sup', 'chairman', 'bro', 'hey', 'hello', 'hi', 'sup', 'good morning', 'good afternoon', 'Good evening', 'morning', 'afternoon', 'evening'];
 
 
 $(document).ready(function () {
@@ -66,13 +66,9 @@ function determineQuestion(old_question, answer) {
 
     for (let i = 0; i < questionsDataSet.length; i++) {
         if (old_question.includes(questionsDataSet[i].old) && old_question.length == questionsDataSet[i].old.length) {
-            console.log('first ');
-            console.log(questionsDataSet[i].new);
             return printQuestion(questionsDataSet[i].new);
         }
         if (old_question.includes(questionsDataSet[i].old) && old_question.length != questionsDataSet[i].old.length) {
-            console.log('second ');
-            console.log(questionsDataSet[i].new);
             return positiveResponse.find(res => answer == res) ? printQuestion(questionsDataSet[i]) : printQuestion(isAnswerTheSame(answer).new);
         }
         return printQuestion("Okay &#128521;");
@@ -94,7 +90,7 @@ function getSorryMessage(answer) {
  * @param {string} answer 
  */
 function getNameQuestion(answer) {
-    if(greetings.find(greet => greet == answer)) {
+    if (greetings.find(greet => greet == answer)) {
         return printQuestion(questionsDataSet[0].old);
     }
     username = formatUsername(answer);
@@ -149,10 +145,25 @@ function getNextMatchQuestion(answer) {
         return printQuestion('I am not sure that is a football team');
     }
     if (footballTeams) {
-        return footballTeams.find(team => team == answer) ? printQuestion(questionsDataSet[6].new) : printQuestion('Wow your team was not found ')
+        var found = findTeam(answer);
+        if (found.id) {
+            var printData = getUsername(false) + ' your team ' + found.name + ' with short name ' + found.shortName + ' was founded in ' + found.founded + '. Your club colors is ' + found.clubColors + ' and you can read more about them on ' + found.website + '. &#128521;';
+            printQuestion(printData);
+            setTimeout(() => {
+                printQuestion(questionsDataSet[6].new);
+            }, 400);
+            return;
+        }
+        return printQuestion('Wow your team was not found ')
     }
     return printQuestion('sorry ' + getUsername(false) + '&#128560; I am having some network issue checking your team up.. sorry !!! try again later');
 }
+
+// give them some information about the club
+function findTeam(answer) {
+    return footballTeams.teams.find(team => team.name.toLowerCase().includes(answer) || team.shortName.toLowerCase().includes(answer) || team.tla.toLowerCase().includes(answer));
+}
+
 
 function getUsername(addQuestionMark = true) {
     var user = username.replace(',', '');
@@ -223,10 +234,10 @@ function ipLookUp() {
     let origin = null;
     $.ajax({
         url: 'http://ip-api.com/json',
-        dataType: 'json', 
+        dataType: 'json',
         type: 'GET',
         async: false,
-    }).done(function(response) {
+    }).done(function (response) {
         console.log(response);
         origin = response;
     });
@@ -234,7 +245,7 @@ function ipLookUp() {
 }
 
 function getFootballInfo(old_question) {
-    if (old_question == "charley do you want to know your last match score ?") {
+    if (old_question == "buddy do you want to know your last match score ?") {
         fetchFootballData(footballUrls.competition);
         // if (football == null) {
         //     Swal.fire({
@@ -247,6 +258,7 @@ function getFootballInfo(old_question) {
 }
 
 function fetchFootballData(url) {
+    console.log('getting football data');
     let data = null;
     $.ajax({
         headers: { 'X-Auth-Token': '0e0e8e7880894045b8f02a8d29e32a91' },
@@ -255,6 +267,7 @@ function fetchFootballData(url) {
         type: 'GET',
         async: false,
     }).done(function (response) {
+        console.log(response);
         data = response;
     })
     return data;
@@ -288,7 +301,7 @@ var questionsDataSet = [
     },
     {
         "old": "Okay o, I am here to serve you with football, which team do you support?",
-        "new": "charley do you want to know your last match score ?"
+        "new": "buddy do you want to know your last match score ?"
     },
     {
         "old": "buddy would you love to know your next match ?",
@@ -27012,6 +27025,3 @@ var questionsDataSet = [
         "new": "I'm here to answer your questions and help out."
     }
 ];
-
-
-console.log(questionsDataSet);
