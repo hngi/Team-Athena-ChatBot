@@ -1,12 +1,14 @@
 /**
  * Author: Alex Adomako Adusei
  */
+
 let username;
 let football;
 let competitions;
+let team;
 let footballUrls = {
-    team: 'http://api.football-data.org/v2/teams',
-    competition: 'http://api.football-data.org/v2/competitions',
+    team: 'https://api.football-data.org/v2/teams',
+    competition: 'https://api.football-data.org/v2/competitions',
 };
 let origin = ipLookUp();
 const countries = basicRequest('https://restcountries.eu/rest/v2/all');
@@ -18,6 +20,7 @@ const greetings = ['sup', 'chairman', 'bro', 'hey', 'hello', 'hi', 'sup', 'good 
 
 
 $(document).ready(function () {
+    $("#answer").prop('disabled', false);
     $(".btn-question").on('click', function (e) {
         e.preventDefault();
         const answer = $("#answer").val().trim().toLowerCase();
@@ -40,6 +43,7 @@ $(document).ready(function () {
  * @param {string} answer 
  */
 function determineQuestion(old_question, answer) {
+
     if (old_question.includes(questionsDataSet[0].old)) {
         return getNameQuestion(answer);
     }
@@ -58,6 +62,10 @@ function determineQuestion(old_question, answer) {
 
     if (old_question.includes('which team do you support')) {
         return getNextMatchQuestion(answer);
+    }
+
+    if (old_question.includes(questionsDataSet[6].new)) {
+        return getLastMatchInfo(answer);
     }
 
     if (old_question.includes('try again later')) {
@@ -145,24 +153,39 @@ function getNextMatchQuestion(answer) {
         return printQuestion('I am not sure that is a football team');
     }
     if (footballTeams) {
-        var found = findTeam(answer);
-        if (found.id) {
-            var printData = getUsername(false) + ' your team ' + found.name + ' with short name ' + found.shortName + ' was founded in ' + found.founded + '. Your club colors is ' + found.clubColors + ' and you can read more about them on ' + found.website + '. &#128521;';
+        team = findTeam(answer);
+        console.log(team);
+        if (team !== undefined) {
+            var printData = getUsername(false) + ' your team ' + team.name + ' with short name ' + team.shortName + ' was founded in ' + team.founded + '. Your club colors is ' + team.clubColors + ' and you can read more about them on ' + team.website + '. &#128521;';
             printQuestion(printData);
             setTimeout(() => {
                 printQuestion(questionsDataSet[6].new);
-            }, 400);
+            }, 600);
             return;
         }
-        return printQuestion('Wow your team was not found ')
+        printQuestion('Wow your team was not found in the english premier league');
+        setTimeout(() => {
+            printQuestion('which team do you support in the english premier league ' + getUsername());;
+        }, 600);
+        return;
     }
-    return printQuestion('sorry ' + getUsername(false) + '&#128560; I am having some network issue checking your team up.. sorry !!! try again later');
+    printQuestion('sorry ' + getUsername(false) + '&#128560; I am having some network issue checking your team up.. sorry !!! try again later');
 }
 
-// give them some information about the club
+function getLastMatchInfo(answer) {
+    if (positiveResponse.find(response => response.includes(answer)) && team.id) {
+        var matches = fetchFootballData('https://api.football-data.org/v2/teams/' + team.id + '/matches').matches.reverse();
+        var last_match = matches.find(match => match.status == "FINISHED");
+        var data = last_match.homeTeam.name + ": " + last_match.score.fullTime.homeTeam + " " + last_match.awayTeam.name + ": " + last_match.score.fullTime.awayTeam; 
+        printQuestion(data);
+    }
+    printQuestion("Ok o &#129296;");
+}
+
 function findTeam(answer) {
     return footballTeams.teams.find(team => team.name.toLowerCase().includes(answer) || team.shortName.toLowerCase().includes(answer) || team.tla.toLowerCase().includes(answer));
 }
+
 
 
 function getUsername(addQuestionMark = true) {
@@ -178,7 +201,7 @@ function getAnswerLength(answer) {
 function printQuestion(question) {
     if (question.length) {
         var new_question = '<div class="chat-bubble incoming-chat"> <div class="sender-details">';
-        new_question += '<img class="sender-avatar img-xs rounded-circle" src="images/avatar.png" alt="profile image"></div>';
+        new_question += '<img class="sender-avatar img-xs rounded-circle" src="images/avatar1.png" alt="profile image"></div>';
         new_question += '<div class="chat-message question" style="display: inline-block; margin-bottom: 5px">';
         new_question += ' <p> ' + question + '</p> </div>';
     }
@@ -190,7 +213,7 @@ function printQuestion(question) {
 
 function printAnswer(answer) {
     var answer_chatbot = '<div class="chat-bubble outgoing-chat"><div class="sender-details">';
-    answer_chatbot += '<img class="sender-avatar img-xs rounded-circle" src="images/avatar1.png" alt="profile image"></div>';
+    answer_chatbot += '<img class="sender-avatar img-xs rounded-circle" src="images/avatar.png" alt="profile image"></div>';
     answer_chatbot += '<div class="chat-message"> <p>' + answer + '</p></div> </div>';
 
     $('#chat').append(answer_chatbot);
@@ -199,9 +222,10 @@ function printAnswer(answer) {
 
 
 function getCountry() {
+
     var defaultCountry = " Ghana";
-    if (typeof origin !== 'undefined') {
-        return ' ' + origin.country
+    if (typeof origin !== 'undefined' && countries) {
+        return ' ' + countries.find(country => country.alpha2Code ==  origin.country).name 
     }
     return defaultCountry;
 }
@@ -233,7 +257,7 @@ function basicRequest(url) {
 function ipLookUp() {
     let origin = null;
     $.ajax({
-        url: 'http://ip-api.com/json',
+        url: 'https://ipinfo.io?token=419551d32154c2',
         dataType: 'json',
         type: 'GET',
         async: false,
@@ -247,18 +271,11 @@ function ipLookUp() {
 function getFootballInfo(old_question) {
     if (old_question == "buddy do you want to know your last match score ?") {
         fetchFootballData(footballUrls.competition);
-        // if (football == null) {
-        //     Swal.fire({
-        //         type: 'error',
-        //         title: 'Oops',
-        //         text: 'Something went wrong! unable to get score info',
-        //     })
-        // }
+
     }
 }
 
 function fetchFootballData(url) {
-    console.log('getting football data');
     let data = null;
     $.ajax({
         headers: { 'X-Auth-Token': '0e0e8e7880894045b8f02a8d29e32a91' },
@@ -297,10 +314,10 @@ var questionsDataSet = [
     },
     {
         "old": 'awww i hope that is a nice place ?',
-        "new": "Okay o &#128522;, I am here to serve you with football, which team do you support"
+        "new": "Okay o &#128522;, I am here to serve you with football, which team do you support in the english premier league"
     },
     {
-        "old": "Okay o, I am here to serve you with football, which team do you support?",
+        "old": "Okay o, I am here to serve you with football, which team do you support in the english premier league ?",
         "new": "buddy do you want to know your last match score ?"
     },
     {
@@ -309,7 +326,7 @@ var questionsDataSet = [
     },
     {
         "old": "are you sure that is a country",
-        "new": "Okay o &#128522;, I am here to serve you with football, which team do you support?"
+        "new": "Okay o &#128522;, I am here to serve you with football, which team do you support in the english premier league?"
     },
 
     {
