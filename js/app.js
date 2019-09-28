@@ -21,6 +21,7 @@ const greetings = ['sup', 'chairman', 'bro', 'hey', 'hello', 'hi', 'sup', 'good 
 
 $(document).ready(function () {
     $("#answer").prop('disabled', false);
+
     $(".btn-question").on('click', function (e) {
         e.preventDefault();
         const answer = $("#answer").val().trim().toLowerCase();
@@ -29,6 +30,10 @@ $(document).ready(function () {
         if (answer.length) {
             $("#answer").val('');
             printAnswer(answer);
+            $('#chat').append('<span id="typing" style="padding-top: 10px"><img class="sender-avatar img-xs rounded-circle" src="images/avatar1.png" alt="profile image"> <p id="typing">typing... </p> </span>');
+            setTimeout(()=> {
+                $('#typing').remove();
+            }, 700);
             determineQuestion(formatQuestion(old_question), answer);
             return;
         }
@@ -154,7 +159,6 @@ function getNextMatchQuestion(answer) {
     }
     if (footballTeams) {
         team = findTeam(answer);
-        console.log(team);
         if (team !== undefined) {
             var printData = getUsername(false) + ' your team ' + team.name + ' with short name ' + team.shortName + ' was founded in ' + team.founded + '. Your club colors is ' + team.clubColors + ' and you can read more about them on ' + team.website + '. &#128521;';
             printQuestion(printData);
@@ -178,6 +182,7 @@ function getLastMatchInfo(answer) {
         var last_match = matches.find(match => match.status == "FINISHED");
         var data = last_match.homeTeam.name + ": " + last_match.score.fullTime.homeTeam + " " + last_match.awayTeam.name + ": " + last_match.score.fullTime.awayTeam; 
         printQuestion(data);
+        return;
     }
     printQuestion("Ok o &#129296;");
 }
@@ -245,7 +250,6 @@ function basicRequest(url) {
         type: 'GET',
         async: false,
     }).done(function (response) {
-        console.log(response);
         data = response;
     });
     return data;
@@ -262,7 +266,6 @@ function ipLookUp() {
         type: 'GET',
         async: false,
     }).done(function (response) {
-        console.log(response);
         origin = response;
     });
     return origin;
@@ -284,7 +287,6 @@ function fetchFootballData(url) {
         type: 'GET',
         async: false,
     }).done(function (response) {
-        console.log(response);
         data = response;
     })
     return data;
