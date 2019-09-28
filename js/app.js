@@ -1,37 +1,44 @@
-let origin;
+/**
+ * Author: Alex Adomako Adusei
+ */
+let username;
 let football;
 let competitions;
 let footballUrls = {
     team: 'http://api.football-data.org/v2/teams',
     competition: 'http://api.football-data.org/v2/competitions',
 };
-
-const positiveResponse = ['yeah', 'yes', 'ya', 'yup', 'true', 'yea', 'yh', 'yeh'];
+let origin = ipLookUp();
+const countries = basicRequest('https://restcountries.eu/rest/v2/all');
+const footballTeams = fetchFootballData(footballUrls.team);
+const positiveResponse = ['yeah', 'yes', 'ya', 'yup', 'true', 'yea', 'yh', 'yeh', 'ok', 'okay', 'sure'];
 const negativeResponse = ['no', 'nah', 'not at all', 'false'];
+const initials = ['i am', 'i\'m', 'a bi'];
+const greetings = ['sup', 'chairman','bro','hey','hello','hi','sup','good morning', 'good afternoon', 'Good evening', 'morning', 'afternoon', 'evening'];
+
 
 $(document).ready(function () {
-    /* do geo location stuff */
-    ipLookUp();
     $(".btn-question").on('click', function (e) {
         e.preventDefault();
         const answer = $("#answer").val().trim().toLowerCase();
         const old_question = $('.question').last().text().trim();
 
-        if (answer.length > 1) {
+        if (answer.length) {
             $("#answer").val('');
-            /*paste question on the view */
-            var answer_chatbot = '<div class="chat-bubble outgoing-chat"><div class="sender-details">';
-            answer_chatbot += '<img class="sender-avatar img-xs rounded-circle" src="images/avatar1.png" alt="profile image"></div>';
-            answer_chatbot += '<div class="chat-message"> <p>' + answer + '</p></div> </div>';
-            $('#chat').append(answer_chatbot);
-            determineQuestion(old_question, answer);
+            printAnswer(answer);
+            determineQuestion(formatQuestion(old_question), answer);
+            return;
         }
     });
 });
 
 
 
-
+/**
+ * @description determines which questions to ask
+ * @param {string} old_question 
+ * @param {string} answer 
+ */
 function determineQuestion(old_question, answer) {
     if (old_question.includes(questionsDataSet[0].old)) {
         return getNameQuestion(answer);
@@ -41,21 +48,45 @@ function determineQuestion(old_question, answer) {
         return getLocationQuestion(answer);
     }
 
-    if (old_question == "where are you from then ?") {
-        url = 'https://restcountries.eu/rest/v2/name/' + answer;
-        return basicRequest(url) ? questionsDataSet[1] : questionsDataSet[8];
+    if (old_question.includes(questionsDataSet[2].old) || old_question.includes(questionsDataSet[8].old)) {
+        return checkLocationSatus(answer);
+    }
+
+    if (old_question.includes(questionsDataSet[5].old.replace('?', ''))) {
+        return getTeamQuestion(answer);
+    }
+
+    if (old_question.includes('which team do you support')) {
+        return getNextMatchQuestion(answer);
+    }
+
+    if (old_question.includes('try again later')) {
+        return getSorryMessage(answer);
     }
 
     for (let i = 0; i < questionsDataSet.length; i++) {
-        if (old_question.includes(questionsDataSet[i].A) && old_question.length == questionsDataSet[i].A.length) {
-            return questionsDataSet[i];
+        if (old_question.includes(questionsDataSet[i].old) && old_question.length == questionsDataSet[i].old.length) {
+            console.log('first ');
+            console.log(questionsDataSet[i].new);
+            return printQuestion(questionsDataSet[i].new);
         }
-        if (old_question.includes(questionsDataSet[i].A) && old_question.length != questionsDataSet[i].A.length) {
-            var positiveResponse = ['yeah', 'yes', 'ya', 'yup', 'true', 'yea', 'yh', 'yeh'];
-            return positiveResponse.find(res => answer == res) ? questionsDataSet[i] : isAnswerTheSame(answer);
+        if (old_question.includes(questionsDataSet[i].old) && old_question.length != questionsDataSet[i].old.length) {
+            console.log('second ');
+            console.log(questionsDataSet[i].new);
+            return positiveResponse.find(res => answer == res) ? printQuestion(questionsDataSet[i]) : printQuestion(isAnswerTheSame(answer).new);
         }
+        return printQuestion("Okay &#128521;");
     }
 }
+
+function getSorryMessage(answer) {
+    if (positiveResponse.find(res => res == answer)) {
+        printQuestion('Thanks ' + getUsername(false) + ' You the best &#128526;')
+    } else {
+        printQuestion('Ok &#128527;')
+    }
+}
+
 
 /**
  * @description do all formating for naming here
@@ -63,13 +94,21 @@ function determineQuestion(old_question, answer) {
  * @param {string} answer 
  */
 function getNameQuestion(answer) {
-    return printQuestion(formatUsername(answer) + questionsDataSet[0].new + getCountry() + ' ?');
+    if(greetings.find(greet => greet == answer)) {
+        return printQuestion(questionsDataSet[0].old);
+    }
+    username = formatUsername(answer);
+    return printQuestion(username + questionsDataSet[0].new + getCountry() + ' ?');
 }
 
 function formatUsername(answer) {
-    var initials = ['i am', 'i\'m', 'a bi'];
     var check = initials.find(ini => answer.includes(ini));
     return check ? answer.replace(check, '') : answer + ', ';
+}
+
+function formatQuestion(question) {
+    let index = question.lastIndexOf('&');
+    return index.length > 0 ? question.slice(0, index) : question;
 }
 
 /**
@@ -89,8 +128,39 @@ function getLocationQuestion(answer) {
 }
 
 
-function getSportsQuestion(answer) {
+function checkLocationSatus(answer) {
+    if (answer.length > 4) {
+        return countries.find(country => country.name.toLowerCase() == answer) ? printQuestion(questionsDataSet[1].new) : printQuestion(questionsDataSet[8].old);
+    }
+    return printQuestion(questionsDataSet[1].new);
+}
 
+function getTeamQuestion(answer) {
+    if (positiveResponse.find(res => res == answer && username)) {
+        return printQuestion(questionsDataSet[5].new + getUsername());
+    }
+    if (negativeResponse.includes(answer)) {
+
+    }
+}
+
+function getNextMatchQuestion(answer) {
+    if (getAnswerLength(answer) > 3) {
+        return printQuestion('I am not sure that is a football team');
+    }
+    if (footballTeams) {
+        return footballTeams.find(team => team == answer) ? printQuestion(questionsDataSet[6].new) : printQuestion('Wow your team was not found ')
+    }
+    return printQuestion('sorry ' + getUsername(false) + '&#128560; I am having some network issue checking your team up.. sorry !!! try again later');
+}
+
+function getUsername(addQuestionMark = true) {
+    var user = username.replace(',', '');
+    return addQuestionMark ? ' ' + username.replace(',', '') + '?' : user;
+}
+
+function getAnswerLength(answer) {
+    return answer.split(" ").length;
 }
 
 
@@ -107,28 +177,23 @@ function printQuestion(question) {
     }, 800);
 }
 
-function basicRequest(url) {
-    let data = null;
-    $.ajax({
-        url: url,
-        dataType: 'json',
-        type: 'GET',
-    }).done(function (response) {
-        console.log(response);
-        data = response;
-    });
-    return data;
+function printAnswer(answer) {
+    var answer_chatbot = '<div class="chat-bubble outgoing-chat"><div class="sender-details">';
+    answer_chatbot += '<img class="sender-avatar img-xs rounded-circle" src="images/avatar1.png" alt="profile image"></div>';
+    answer_chatbot += '<div class="chat-message"> <p>' + answer + '</p></div> </div>';
+
+    $('#chat').append(answer_chatbot);
 }
+
+
 
 function getCountry() {
     var defaultCountry = " Ghana";
-
     if (typeof origin !== 'undefined') {
         return ' ' + origin.country
     }
     return defaultCountry;
 }
-
 
 function isAnswerTheSame(answer) {
     if (typeof origin !== 'undefined') {
@@ -137,100 +202,62 @@ function isAnswerTheSame(answer) {
     return questionsDataSet[3];
 }
 
+function basicRequest(url) {
+    let data = null;
+    $.ajax({
+        url: url,
+        dataType: 'json',
+        type: 'GET',
+        async: false,
+    }).done(function (response) {
+        console.log(response);
+        data = response;
+    });
+    return data;
+}
+
 /**
  * @desc get geolocation data
  */
 function ipLookUp() {
-    $.ajax('http://ip-api.com/json')
-        .then(
-            function success(response) {
-                setOrigin(response);
-                getAddress(response.lat, response.lon)
-            },
-
-            function fail(data, status) {
-                console.log('Request failed.  Returned status of',
-                    status);
-                origin.country = 'Ghana';
-            }
-        );
-}
-
-function getAddress(latitude, longitude) {
-    $.ajax('https://maps.googleapis.com/maps/api/geocode/json?' +
-        'latlng=' + latitude + ',' + longitude + '&key=' +
-        GOOGLE_MAP_KEY)
-        .then(
-            function success(response) {
-                setOrigin(response);
-                console.log('User\'s Address Data is ', response)
-            },
-            function fail(status) {
-                console.log('Request failed.  Returned status of', status)
-            }
-        )
-}
-
-if ("geolocation" in navigator) {
-    // check if geolocation is supported/enabled on current browser
-    navigator.geolocation.getCurrentPosition(
-        function success(position) {
-            // for when getting location is a success
-            console.log('latitude', position.coords.latitude,
-                'longitude', position.coords.longitude);
-            getAddress(position.coords.latitude,
-                position.coords.longitude)
-        },
-        function error(error_message) {
-            // for when getting location results in an error
-            console.error('An error has occured while retrieving' +
-                'location', error_message)
-            ipLookUp()
-        });
-} else {
-    // geolocation is not supported
-    // get your location some other way
-    console.log('geolocation is not enabled on this browser')
-    ipLookUp()
+    let origin = null;
+    $.ajax({
+        url: 'http://ip-api.com/json',
+        dataType: 'json', 
+        type: 'GET',
+        async: false,
+    }).done(function(response) {
+        console.log(response);
+        origin = response;
+    });
+    return origin;
 }
 
 function getFootballInfo(old_question) {
     if (old_question == "charley do you want to know your last match score ?") {
         fetchFootballData(footballUrls.competition);
-        if (football == null) {
-            Swal.fire({
-                type: 'error',
-                title: 'Oops',
-                text: 'Something went wrong! unable to get score info',
-            })
-        }
+        // if (football == null) {
+        //     Swal.fire({
+        //         type: 'error',
+        //         title: 'Oops',
+        //         text: 'Something went wrong! unable to get score info',
+        //     })
+        // }
     }
 }
 
 function fetchFootballData(url) {
+    let data = null;
     $.ajax({
         headers: { 'X-Auth-Token': '0e0e8e7880894045b8f02a8d29e32a91' },
         url: url,
         dataType: 'json',
         type: 'GET',
+        async: false,
     }).done(function (response) {
-        competition = response;
-        setFootballdata(response);
-        console.log(response);
+        data = response;
     })
-}
-
-function setFootballdata(fb) {
-    if (fb) {
-        football = fb;
-    }
-}
-
-
-function setOrigin(org) {
-    if (org) {
-        origin = org;
-    }
+    return data;
 }
 
 var questionsDataSet = [
@@ -240,12 +267,13 @@ var questionsDataSet = [
     },
     {
         "old": "awww nice you have a nice name, please confirm are you from",
-        "new": "awww i hope that is a nice place ?"
+        "new": "awww i hope that is a nice place &#128578; ?"
     },
     {
         "old": "where are you from then ?",
         "new": "awww i hope that is a nice place ?"
     },
+
     {
         "old": "checking your location",
         "new": "where are you from then ?"
@@ -256,17 +284,21 @@ var questionsDataSet = [
     },
     {
         "old": 'awww i hope that is a nice place ?',
-        "new": "Okay o, I am here to serve you with football, which team do you support?"
+        "new": "Okay o &#128522;, I am here to serve you with football, which team do you support"
     },
     {
         "old": "Okay o, I am here to serve you with football, which team do you support?",
         "new": "charley do you want to know your last match score ?"
     },
-
     {
-        "old": "charley do you want to know your last match score ?",
+        "old": "buddy would you love to know your next match ?",
         "new": "okay, i'm coming"
     },
+    {
+        "old": "are you sure that is a country",
+        "new": "Okay o &#128522;, I am here to serve you with football, which team do you support?"
+    },
+
     {
         "old": "are you a senior?",
         "new": "Age doesn't really apply to me. "
@@ -26980,3 +27012,6 @@ var questionsDataSet = [
         "new": "I'm here to answer your questions and help out."
     }
 ];
+
+
+console.log(questionsDataSet);
