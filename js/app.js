@@ -1,5 +1,5 @@
 /**
- * Author: Alex Adomako Adusei
+ * Authors: Alex Adomako Adusei, Osueke Christian, Adedolapo Olaiya.
  */
 
 let username;
@@ -26,7 +26,6 @@ $(document).ready(function () {
         e.preventDefault();
         const answer = $("#answer").val().trim().toLowerCase();
         const old_question = $('.question').last().text().trim();
-
         if (answer.length) {
             $("#answer").val('');
             printAnswer(answer);
@@ -48,7 +47,7 @@ $(document).ready(function () {
  * @param {string} answer 
  */
 function determineQuestion(old_question, answer) {
-
+	
     if (old_question.includes(questionsDataSet[0].old)) {
         return getNameQuestion(answer);
     }
@@ -102,6 +101,13 @@ function getSorryMessage(answer) {
  * @param {string} old_question 
  * @param {string} answer 
  */
+function getCurrentTIme(){
+	return new Date().toLocaleTimeString(navigator.language, {
+        hour: '2-digit',
+        minute:'2-digit'
+      });
+}
+
 function getNameQuestion(answer) {
     if (greetings.find(greet => greet == answer)) {
         return printQuestion(questionsDataSet[0].old);
@@ -208,20 +214,22 @@ function printQuestion(question) {
         var new_question = '<div class="chat-bubble incoming-chat"> <div class="sender-details">';
         new_question += '<img class="sender-avatar img-xs rounded-circle" src="images/avatar1.png" alt="profile image"></div>';
         new_question += '<div class="chat-message question" style="display: inline-block; margin-bottom: 5px">';
-        new_question += ' <p> ' + question + '</p> </div>';
+        new_question += ' <p> ' + question + '<span class="time">' + getCurrentTIme() + '</span></p> </div>';
     }
-
+	
     setTimeout(function () {
         $('#chat').append(new_question);
+		window.scrollTo(0,document.body.scrollHeight);
     }, 800);
 }
 
 function printAnswer(answer) {
     var answer_chatbot = '<div class="chat-bubble outgoing-chat"><div class="sender-details">';
     answer_chatbot += '<img class="sender-avatar img-xs rounded-circle" src="images/avatar.png" alt="profile image"></div>';
-    answer_chatbot += '<div class="chat-message"> <p>' + answer + '</p></div> </div>';
+    answer_chatbot += '<div class="chat-message"> <p>' + answer + '<span class="time" style = "color: #fff;">' + ' ' + ' ' + getCurrentTIme() + '</span></p></div> </div>';
 
     $('#chat').append(answer_chatbot);
+	window.scrollTo(0,document.body.scrollHeight);
 }
 
 
