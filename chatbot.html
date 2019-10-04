@@ -6,11 +6,21 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Chatbot</title>
-    <link rel="stylesheet" href="//cdn.materialdesignicons.com/4.4.95/css/materialdesignicons.min.css">
+
+    <link rel="stylesheet" href="//cdn.materialdesignicons.com/4.4.95/css/materialdesignicons.min.css"
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/style.css">
     <!-- End Layout styles -->
     <link rel="shortcut icon" href="../../../assets/images/favicon.png" />
+	<style>
+		.time{
+			width: 20px; 
+			height: 7px; 
+			color: #888888;
+			font-size: 12px;
+            margin-left: 5px;
+        }
+	</style>
 </head>
 
 <body class="sidebar-icon-only sidebar-fixed" >
@@ -68,12 +78,12 @@
 
                                                 <div class="chat-message"
                                                     style="display: inline-block; margin-bottom: 5px">
-                                                    <p> Hello, I'm Athena.</p>
+                                                    <p> Hello, I'm Athena. <span class="time"></span></p>
                                                 </div>
                                                 <br>
                                                 <div class="chat-message question"
                                                     style="display: inline-block; margin-bottom: 10px">
-                                                    <p> welcome buddy what is your name? </p>
+                                                    <p> welcome buddy what is your name? <span class="time"></span> </p>
                                                 </div>
                                             </div>
 
@@ -130,6 +140,16 @@
     <script src="js/misc.js"></script>
     <script src="js/settings.js"></script>
     <script src="js/app.js"></script>
+	
+	<script>
+		window.onload( console.log(document.querySelectorAll('.time').forEach((item)=>{
+			item.innerHTML = new Date().toLocaleTimeString(
+                navigator.language, {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }); 
+		})))
+	</script>
 </body>
 
 </html>
